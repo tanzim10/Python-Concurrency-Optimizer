@@ -1,20 +1,20 @@
 import numpy as np
 import time
 import psutil
+from numba import njit, prange
 
-def floyd_warshall(weights, num_vertices):
+@njit(parallel=True)
+def floyd_warshall_optimized(weights, num_vertices):
     # Initialize the distance matrix with a copy of the weights matrix
     distance = weights.copy()
     
     # Apply Floyd-Warshall algorithm to calculate shortest paths
     for k in range(num_vertices):
-        for i in range(num_vertices):
-            for j in range(num_vertices):
+        for i in prange(num_vertices):
+            for j in prange(num_vertices):
                 if distance[i][j] > distance[i][k] + distance[k][j]:
                     distance[i][j] = distance[i][k] + distance[k][j]
     return distance
-
-
 
 def measure_execution_time_and_memory(func, *args, **kwargs):
     """
@@ -38,8 +38,6 @@ def measure_execution_time_and_memory(func, *args, **kwargs):
 
     return result
 
-
-
 def main():
     num_vertices = 500  # Number of vertices in the graph
     INF = float('inf')  # Infinite cost representing no direct path
@@ -59,9 +57,7 @@ def main():
     print(weights[:5, :5])  # Print a 5x5 submatrix for inspection
 
     # Measure the Floyd-Warshall algorithm's performance
-    measure_execution_time_and_memory(floyd_warshall, weights, num_vertices)
+    measure_execution_time_and_memory(floyd_warshall_optimized, weights, num_vertices)
 
 if __name__ == "__main__":
     main()
-
-
