@@ -24,17 +24,7 @@ def fetch_data_sequentially(urls):
 
 
 def time_function(func, *args, **kwargs):
-    """
-    Measures the execution time of a function.
-    
-    Parameters:
-        func (callable): The function to measure.
-        *args: Positional arguments to pass to the function.
-        **kwargs: Keyword arguments to pass to the function.
-        
-    Returns:
-        tuple: A tuple containing the result of the function and the time taken to execute.
-    """
+   
     start_time = time.time()
     result = func(*args, **kwargs)
     end_time = time.time()
