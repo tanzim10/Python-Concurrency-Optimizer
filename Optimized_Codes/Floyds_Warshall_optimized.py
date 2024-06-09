@@ -1,14 +1,14 @@
+
+
 import numpy as np
 import time
 import psutil
+import matplotlib.pyplot as plt
 from numba import njit, prange
 
 @njit(parallel=True)
 def floyd_warshall_optimized(weights, num_vertices):
-    # Initialize the distance matrix with a copy of the weights matrix
     distance = weights.copy()
-    
-    # Apply Floyd-Warshall algorithm to calculate shortest paths
     for k in range(num_vertices):
         for i in prange(num_vertices):
             for j in prange(num_vertices):
@@ -17,47 +17,39 @@ def floyd_warshall_optimized(weights, num_vertices):
     return distance
 
 def measure_execution_time_and_memory(func, *args, **kwargs):
-    """
-    Measures the execution time and memory usage of a passed function.
-    """
     process = psutil.Process()
     start_time = time.time()
-    start_memory = process.memory_info().rss  # Memory usage before execution
-    
-    result = func(*args, **kwargs)  # Execute the function
-    
-    end_memory = process.memory_info().rss  # Memory usage after execution
+    start_memory = process.memory_info().rss
+    result = func(*args, **kwargs)
+    end_memory = process.memory_info().rss
     end_time = time.time()
-    
-    execution_time = end_time - start_time  # Total execution time
-    memory_usage = end_memory - start_memory  # Total memory used
-    
-    print(f"Result: {result}")
-    print(f"Execution Time: {execution_time:.4f} seconds")
-    print(f"Memory Usage: {memory_usage} bytes, approximately {memory_usage / 1024 ** 2:.2f} MB")
+    execution_time = end_time - start_time
+    memory_usage = end_memory - start_memory
+    return execution_time, memory_usage, result
 
-    return result
+def plot_performance(vertex_range):
+    times = []
+    for num_vertices in vertex_range:
+        weights = np.random.randint(1, 10, size=(num_vertices, num_vertices)).astype(float)
+        mask = np.random.rand(num_vertices, num_vertices) < 0.1
+        weights[mask] = float('inf')
+        np.fill_diagonal(weights, 0)
+        execution_time, _, _ = measure_execution_time_and_memory(floyd_warshall_optimized, weights, num_vertices)
+        times.append(execution_time)
+        print(f"Processed graph with {num_vertices} vertices in {execution_time:.4f} seconds.")
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(vertex_range, times, marker='o', linestyle='-', color='b')
+    plt.title('Performance of Optimized Floyd-Warshall Algorithm')
+    plt.xlabel('Number of Vertices')
+    plt.ylabel('Execution Time (seconds)')
+    plt.grid(True)
+    plt.show()
 
 def main():
-    num_vertices = 500  # Number of vertices in the graph
-    INF = float('inf')  # Infinite cost representing no direct path
-
-    # Generate random integer weights between 1 and 9, then convert to float
-    weights = np.random.randint(1, 10, size=(num_vertices, num_vertices)).astype(float)
-
-    # Randomly assign roughly 10% of the weights to be INF
-    mask = np.random.rand(num_vertices, num_vertices) < 0.1  # 10% chance
-    weights[mask] = INF
-
-    # Ensure diagonal elements are 0 (no self-loop costs)
-    np.fill_diagonal(weights, 0)
-
-    # Optional: Print some weights to verify
-    print("Sample weights matrix:")
-    print(weights[:5, :5])  # Print a 5x5 submatrix for inspection
-
-    # Measure the Floyd-Warshall algorithm's performance
-    measure_execution_time_and_memory(floyd_warshall_optimized, weights, num_vertices)
+    vertex_range = np.arange(100, 1001, 100)  # Test from 100 to 1000 vertices
+    plot_performance(vertex_range)
 
 if __name__ == "__main__":
     main()
+
