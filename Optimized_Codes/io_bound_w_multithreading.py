@@ -39,11 +39,19 @@ if __name__ == "__main__":
     files = {
         'file1.txt': 1,  # 1 MB
         'file2.txt': 1,  # 1 MB
-        'file3.txt': 1   # 1 MB
+        'file3.txt': 1,
+        'file4.txt': 1,
+        'file5.txt': 1,
+        'file6.txt': 1,
+        'file7.txt': 1,
+        'file8.txt': 1,
+        'file9.txt': 1,
+        'file10.txt': 1   # 1 MB
     }
     
     # Define sample content to fill the files
     content = "This is a sample line of text.\n"
+    start_time = time.time()
 
     # Use ThreadPoolExecutor to create files in parallel
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -55,8 +63,13 @@ if __name__ == "__main__":
     print("Sample files created successfully.")
 
     # Example list of files to read
-    files = ['file1.txt', 'file2.txt', 'file3.txt']
+    files = ['file1.txt', 'file2.txt', 'file3.txt', 'file4.txt', 'file5.txt', 'file6.txt', 'file7.txt', 'file8.txt', 'file9.txt', 'file10.txt']
 
     measure_performance(files)
-
+    for i in files:
+        os.remove(i)
+    print("all text files deleted")
+    end_time = time.time()
+    execution_time = end_time - start_time  # Total execution time
+    print(f"\n\nExecution Time: {execution_time:.4f} seconds")
     

@@ -1,5 +1,6 @@
 import numpy as np
 import time
+import matplotlib.pyplot as plt
 from memory_profiler import memory_usage
 from concurrent.futures import ProcessPoolExecutor
 
@@ -23,11 +24,28 @@ def parallel_matrix_multiplication(A, B, num_workers):
             A_chunk = A[start_row:end_row, :]
             futures.append(executor.submit(matrix_multiply_chunk, A_chunk, B, start_row, end_row))
 
-        results = [future.result() for future in futures]
+        results = []
+        dot_products = []
+        times = []
+        num_dot_products = 0
+        start_time = time.time()
+
+        for future in futures:
+            result = future.result()
+            end_time = time.time()
+            
+            # Update the number of dot product calculations
+            num_dot_products += result.shape[0] * B.shape[1]
+            
+            # Record the elapsed time and the number of dot product calculations
+            times.append(end_time - start_time)
+            dot_products.append(num_dot_products)
+            
+            results.append(result)
 
     # Combine the results
     C = np.vstack(results)
-    return C
+    return C, times, dot_products
 
 if __name__ == "__main__":
     matrix_size = 1000  
@@ -39,13 +57,21 @@ if __name__ == "__main__":
     start_time = time.time()
     mem_usage_before = memory_usage()[0]
 
-    C = parallel_matrix_multiplication(A, B, num_workers)
+    C, times, dot_products = parallel_matrix_multiplication(A, B, num_workers)
 
-    end_time = time.time()
     mem_usage_after = memory_usage()[0]
+    end_time = time.time()
 
-    duration = end_time - start_time
     mem_usage = mem_usage_after - mem_usage_before
-
-    print(f"Execution Time: {duration:.2f} seconds")
+    execution_time = end_time - start_time  # Total execution time
     print(f"Memory Usage: {mem_usage:.2f} MiB")
+    print(f"\n\nExecution Time: {execution_time:.4f} seconds")
+
+    # Plot the number of dot product calculations against time
+    plt.figure(figsize=(10, 6))
+    plt.plot(dot_products,times, marker='o')
+    plt.ylabel('Time (seconds)')
+    plt.xlabel('Number of Dot Product Calculations')
+    plt.title('Dot Product Calculations Over Time')
+    plt.grid(True)
+    plt.show()
