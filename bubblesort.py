@@ -35,5 +35,5 @@ def measure_execution_time_and_memory(func, *args, **kwargs):
 
 
 if __name__ == "__main__":
-    array1 = [random.uniform(0, 100) for _ in range(100)]
+    array1 = [random.uniform(0, 100) for _ in range(10000)]
     measure_execution_time_and_memory(bubble_sort,array1)

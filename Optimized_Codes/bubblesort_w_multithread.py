@@ -48,5 +48,5 @@ def measure_execution_time_and_memory(func, *args, **kwargs):
     print(f"Memory Usage: {memory_usage} bytes, approximately {memory_usage / 1024 ** 2:.2f} MB")
 
 if __name__ == "__main__":
-    array1 = [random.uniform(0, 100) for _ in range(100)]
+    array1 = [random.uniform(0, 100) for _ in range(10000)]
     measure_execution_time_and_memory(parallel_bubble_sort, array1)
